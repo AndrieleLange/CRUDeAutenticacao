@@ -3,6 +3,9 @@ using WebApplication1.Data;
 using WebApplication1.Repositorios.Interfaces;
 using WebApplication1.Repositorios;
 using WebApplication1;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace SistemaUser
 {
@@ -21,6 +24,8 @@ namespace SistemaUser
 
             builder.Services.AddScoped<IUserRepo, UserRepo>();
 
+            ConfigureAuthentication(builder.Services);
+
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment())
@@ -30,6 +35,7 @@ namespace SistemaUser
             }
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
 
@@ -53,6 +59,31 @@ namespace SistemaUser
             }
 
                 app.Run();
+        }
+
+        public static void ConfigureAuthentication(IServiceCollection services)
+        {
+            services.AddCors();
+            services.AddControllers();
+
+            var key = Encoding.ASCII.GetBytes(Settings.Secret);
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
         }
     }
 }

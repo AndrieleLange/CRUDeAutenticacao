@@ -14,6 +14,7 @@ namespace WebApplication1.Repositorios
             _dbContext = sistemade;
         }
 
+
     public async Task<User> Add(User user)
     {
         await _dbContext.Usuarios.AddAsync(user);
