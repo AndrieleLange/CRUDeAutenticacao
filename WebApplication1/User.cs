@@ -8,8 +8,12 @@ namespace WebApplication1
 
         public string? name { get; set; }
 
+        [Required]
+        [EmailAddress]
         public string? email { get; set; }
 
+        [Required]
+        [DataType(DataType.Password)]
         [MinLength(8)]
         public string? password { get; set; }
 
